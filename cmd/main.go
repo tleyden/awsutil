@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/mitchellh/cli"
+	"flag"
+	"github.com/tleyden/awsutil"
 )
 
 func main() {
@@ -27,29 +29,49 @@ func main() {
 }
 
 type cloudformationStopInstancesCommand struct {
-
+	args              []string
 }
 
 func (c *cloudformationStopInstancesCommand) Run(args []string) int {
-	log.Printf("cloudformation.Run()")
+
+	// Parse args + get the name of the stack
+	cmdFlags := flag.NewFlagSet("cloudformation", flag.ContinueOnError)
+	cmdFlags.Usage = func() { c.Help() }
+	stackname := cmdFlags.String("stackname", "", "")
+	if err := cmdFlags.Parse(args); err != nil {
+		return 1
+	}
+
+	// Stop all instances in stack
+	err := awsutil.StopInstancesInStack(*stackname)
+	if err != nil {
+		log.Printf("Error stopping instances for stack: %v.  Err: %v", *stackname, err)
+		return 1
+	}
+
+	log.Printf("Stopped all instances in stack: %v", *stackname)
 	return 0
+
 }
 
+
 func (c *cloudformationStopInstancesCommand) Synopsis() string {
-	return "Cloudformation utilities"
+	return "Stop all instances in given cloudformation stack"
 }
 
 func (c *cloudformationStopInstancesCommand) Help() string {
+
 	helpText := `
-Usage: cloudformation [options]
+Usage: cloudformation stop-instances [options]
 
   Starts the Consul agent and runs until an interrupt is received. The
   agent represents a single node in a cluster.
 
 Options:
 
-
+  -stack=stackname          The name of the cloudformation stack
 
  `
 	return strings.TrimSpace(helpText)
+
 }

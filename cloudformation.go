@@ -1,0 +1,3 @@
+package awsutil
+
+func StopInstancesInStack() 
