@@ -37,17 +37,18 @@ func (cfnu CloudformationUtil) StopEC2Instances(stackname string) error {
 
 	for _, stackResource := range describeStackResourcesOut.StackResources {
 
-
 		// if it's not an EC2 instance, ignore it
 		if !IsStackResourceEc2Instance(*stackResource) {
 			continue
 		}
 
 		// otherwise stop it
-		StopEc2InstanceStackResource(*stackResource)
+		err := StopEc2InstanceStackResource(*stackResource)
+		if err != nil {
+			return err
+		}
 
 	}
-
 
 	return nil
 
