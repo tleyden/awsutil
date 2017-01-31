@@ -70,12 +70,10 @@ func (cfnu CloudformationUtil) StopEc2InstanceStackResource(stackResource cloudf
 			stackResource.LogicalResourceId,
 		},
 	}
-	stopInstancesOutput, err := cfnu.ec2Api.StopInstances(&stopInstancesInput)
+	_, err := cfnu.ec2Api.StopInstances(&stopInstancesInput)
 	if err != nil {
 		return err
 	}
-
-	fmt.Printf("stopInstancesOutput: %v", stopInstancesOutput)
 
 	return nil
 
