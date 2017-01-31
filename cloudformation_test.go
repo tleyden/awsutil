@@ -6,6 +6,7 @@ import (
 	"github.com/tleyden/aws-sdk-mock/mockcloudformation"
 	"github.com/tleyden/aws-sdk-mock/mockec2"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/assert"
 )
@@ -37,16 +38,20 @@ func TestStopEc2InstanceStackResource(t *testing.T)  {
 	mockCfn := NewMockCloudformationAPI()
 	mockEc2 := mockec2.NewEC2APIMock()
 
-	
+	mockEc2.On("StopInstances", mock.Anything).Return(
+		&ec2.StopInstancesOutput{},
+		nil,
+	).Once()
 
 	cfnUtil := awsutil.NewCloudformationUtil(mockCfn, mockEc2)
 
 	stackResource := cloudformation.StackResource{
-		ResourceType: stringPointer(awsutil.AWS_EC2_INSTANCE),
+		ResourceType: awsutil.StringPointer(awsutil.AWS_EC2_INSTANCE),
 	}
 	err := cfnUtil.StopEc2InstanceStackResource(stackResource)
 	assert.NoError(t, err, "Error calling StopEc2InstanceStackResource")
 
+	mockEc2.AssertExpectations(t)
 
 
 }
@@ -56,9 +61,5 @@ func NewMockCloudformationAPI() *mockcloudformation.CloudFormationAPIMock {
 
 	return mockcloudformation.NewCloudFormationAPIMock()
 
-
 }
 
-func stringPointer(s string) *string {
-	return &s
-}

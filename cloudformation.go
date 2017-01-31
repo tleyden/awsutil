@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"fmt"
 	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
+	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
 // Wraps AWS Cloudformation SDK API and provides additional utilities
@@ -64,7 +65,17 @@ func (cfnu CloudformationUtil) StopEc2InstanceStackResource(stackResource cloudf
 		return fmt.Errorf("Stack Resource [%+v] is not an EC2 instance.", stackResource)
 	}
 
-	// TODO
+	stopInstancesInput := ec2.StopInstancesInput{
+		InstanceIds: []*string{
+			stackResource.LogicalResourceId,
+		},
+	}
+	stopInstancesOutput, err := cfnu.ec2Api.StopInstances(&stopInstancesInput)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("stopInstancesOutput: %v", stopInstancesOutput)
 
 	return nil
 
