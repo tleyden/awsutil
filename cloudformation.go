@@ -8,17 +8,20 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/aws"
 	"fmt"
+	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
 )
 
 // Wraps AWS Cloudformation SDK API and provides additional utilities
 type CloudformationUtil struct {
 	cfnApi cloudformationiface.CloudFormationAPI
+	ec2Api ec2iface.EC2API
 }
 
 // Create a new ClouformationUtil
-func NewCloudformationUtil(cfnApi cloudformationiface.CloudFormationAPI) *CloudformationUtil {
+func NewCloudformationUtil(cfnApi cloudformationiface.CloudFormationAPI, ec2Api ec2iface.EC2API) *CloudformationUtil {
 	cfnUtil := &CloudformationUtil{
 		cfnApi: cfnApi,
+		ec2Api: ec2Api,
 	}
 	return cfnUtil
 }
@@ -43,12 +46,25 @@ func (cfnu CloudformationUtil) StopEC2Instances(stackname string) error {
 		}
 
 		// otherwise stop it
-		err := StopEc2InstanceStackResource(*stackResource)
+		err := cfnu.StopEc2InstanceStackResource(*stackResource)
 		if err != nil {
 			return err
 		}
 
 	}
+
+	return nil
+
+}
+
+// Stop the EC2 Instance Stack Resource
+func (cfnu CloudformationUtil) StopEc2InstanceStackResource(stackResource cloudformation.StackResource) error {
+
+	if !IsStackResourceEc2Instance(stackResource) {
+		return fmt.Errorf("Stack Resource [%+v] is not an EC2 instance.", stackResource)
+	}
+
+	// TODO
 
 	return nil
 
@@ -69,18 +85,6 @@ func NewCloudformationAPI(session *session.Session, region string) *cloudformati
 
 // Is the StackResource parameter an EC2 instance?
 func IsStackResourceEc2Instance(stackResource cloudformation.StackResource) bool {
-	return *stackResource.ResourceType == "AWS::EC2::Instance"
+	return *stackResource.ResourceType == AWS_EC2_INSTANCE
 }
 
-// Stop the EC2 Instance Stack Resource
-func StopEc2InstanceStackResource(stackResource cloudformation.StackResource) error {
-
-	if !IsStackResourceEc2Instance(stackResource) {
-		return fmt.Errorf("Stack Resource [%+v] is not an EC2 instance.", stackResource)
-	}
-
-	// TODO
-
-	return nil
-
-}
