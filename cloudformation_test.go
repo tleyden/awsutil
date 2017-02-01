@@ -13,6 +13,8 @@ import (
 
 func TestStopEC2Instances(t *testing.T) {
 
+	mockInstanceId := "i-mock"
+
 	mockCfn := NewMockCloudformationAPI()
 	mockEc2 := mockec2.NewEC2APIMock()
 
@@ -22,6 +24,7 @@ func TestStopEC2Instances(t *testing.T) {
 			StackResources: []*cloudformation.StackResource{
 				&cloudformation.StackResource{
 					ResourceType: awsutil.StringPointer(awsutil.AWS_EC2_INSTANCE),
+					PhysicalResourceId: &mockInstanceId,
 				},
 				&cloudformation.StackResource{
 					ResourceType: awsutil.StringPointer(awsutil.AWS_EC2_HOST),
@@ -32,8 +35,16 @@ func TestStopEC2Instances(t *testing.T) {
 		nil,
 	).Once()
 
+	// The mock ec2 API is expecting to get this as the parameter to
+	// the ec2Api.StopInstances invocation
+	expectedStopInstancesInput := &ec2.StopInstancesInput{
+		InstanceIds: []*string{
+			&mockInstanceId,
+		},
+	}
+
 	// Expect a call to ec2 StopInstances
-	mockEc2.On("StopInstances", mock.Anything).Return(
+	mockEc2.On("StopInstances", expectedStopInstancesInput).Return(
 		&ec2.StopInstancesOutput{},
 		nil,
 	).Once()
@@ -61,13 +72,13 @@ func TestStopEc2InstanceStackResource(t *testing.T)  {
 
 	// The mock ec2 API is expecting to get this as the parameter to
 	// the ec2Api.StopInstances invocation
-	expectedStopInstancesInput := ec2.StopInstancesInput{
+	expectedStopInstancesInput := &ec2.StopInstancesInput{
 		InstanceIds: []*string{
 			&mockInstanceId,
 		},
 	}
 
-	mockEc2.On("StopInstances", &expectedStopInstancesInput).Return(
+	mockEc2.On("StopInstances", expectedStopInstancesInput).Return(
 		&ec2.StopInstancesOutput{},
 		nil,
 	).Once()
