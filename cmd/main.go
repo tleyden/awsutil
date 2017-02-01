@@ -55,7 +55,7 @@ func (c *cloudformationStopInstancesCommand) Run(args []string) int {
 	}
 
 	// create a session
-	cfnUtil, err := awsutil.NewCloudformationUtil(*region)
+	cfnUtil, err := awsutil.NewCloudformationUtilFromRegion(*region)
 	if err != nil {
 		log.Fatalf("Error creating cnf: %v", err)
 		return 1

@@ -39,7 +39,8 @@ func TestStopEC2Instances(t *testing.T) {
 	).Once()
 
 	// Create CloudformationUtil which is the struct being tested
-	cfnUtil := awsutil.NewCloudformationUtil(mockCfn, mockEc2)
+	cfnUtil, err := awsutil.NewCloudformationUtil(mockCfn, mockEc2)
+	assert.NoError(t, err, "Error creating NewCloudformationUtil")
 
 	// Tell it to stop all EC2 instances in the fake Cloudformation Stack
 	cfnUtil.StopEC2Instances("fake_stack")
@@ -61,12 +62,14 @@ func TestStopEc2InstanceStackResource(t *testing.T)  {
 		nil,
 	).Once()
 
-	cfnUtil := awsutil.NewCloudformationUtil(mockCfn, mockEc2)
+	cfnUtil, err := awsutil.NewCloudformationUtil(mockCfn, mockEc2)
+	assert.NoError(t, err, "Error calling NewCloudformationUtil")
 
 	stackResource := cloudformation.StackResource{
 		ResourceType: awsutil.StringPointer(awsutil.AWS_EC2_INSTANCE),
 	}
-	err := cfnUtil.StopEc2InstanceStackResource(stackResource)
+
+	err = cfnUtil.StopEc2InstanceStackResource(stackResource)
 	assert.NoError(t, err, "Error calling StopEc2InstanceStackResource")
 
 	mockEc2.AssertExpectations(t)

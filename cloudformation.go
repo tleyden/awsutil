@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"log"
 )
 
 // Wraps AWS Cloudformation SDK API and provides additional utilities
@@ -18,7 +19,7 @@ type CloudformationUtil struct {
 	ec2Api ec2iface.EC2API
 }
 
-func NewCloudformationUtil(region string) (*CloudformationUtil, error) {
+func NewCloudformationUtilFromRegion(region string) (*CloudformationUtil, error) {
 
 	session, err := session.NewSession()
 	if err != nil {
@@ -28,11 +29,19 @@ func NewCloudformationUtil(region string) (*CloudformationUtil, error) {
 	cfnApi := NewCloudformationAPI(session, region)
 	ec2Api := NewEC2API(session, region)
 
+	return NewCloudformationUtil(cfnApi, ec2Api)
+
+
+}
+
+func NewCloudformationUtil(cfnApi cloudformationiface.CloudFormationAPI, ec2Api ec2iface.EC2API) (*CloudformationUtil, error) {
+
 	cnfUtil := &CloudformationUtil{
 		cfnApi: cfnApi,
 		ec2Api: ec2Api,
 	}
-	return cnfUtil, err
+
+	return cnfUtil, nil
 
 
 }
@@ -74,6 +83,8 @@ func (cfnu CloudformationUtil) StopEc2InstanceStackResource(stackResource cloudf
 	if !IsStackResourceEc2Instance(stackResource) {
 		return fmt.Errorf("Stack Resource [%+v] is not an EC2 instance.", stackResource)
 	}
+
+	log.Printf("stackResource: %+v", stackResource)
 
 	stopInstancesInput := ec2.StopInstancesInput{
 		InstanceIds: []*string{
