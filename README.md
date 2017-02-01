@@ -12,4 +12,4 @@ Run:
 $ awsutil cloudformation stop-instances --region us-east-1 --stackname yourstack
 ```
 
-Will stop all EC2 instances in the `yourstack` Cloudformation Stack.
+This will stop all EC2 instances in the `yourstack` Cloudformation Stack.
