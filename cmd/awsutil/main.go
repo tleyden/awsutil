@@ -82,12 +82,11 @@ func (c *cloudformationStopInstancesCommand) Help() string {
 	helpText := `
 Usage: cloudformation stop-instances [options]
 
-  Starts the Consul agent and runs until an interrupt is received. The
-  agent represents a single node in a cluster.
+  Stops all instances in the given cloudformation stack
 
 Options:
 
-  -stack=stackname          The name of the cloudformation stack
+  -stackname=stackname      The name of the cloudformation stack
   -region=region            The AWS region
 
  `
