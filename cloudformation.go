@@ -18,13 +18,23 @@ type CloudformationUtil struct {
 	ec2Api ec2iface.EC2API
 }
 
-// Create a new ClouformationUtil
-func NewCloudformationUtil(cfnApi cloudformationiface.CloudFormationAPI, ec2Api ec2iface.EC2API) *CloudformationUtil {
-	cfnUtil := &CloudformationUtil{
+func NewCloudformationUtil(region string) (*CloudformationUtil, error) {
+
+	session, err := session.NewSession()
+	if err != nil {
+		return nil, err
+	}
+
+	cfnApi := NewCloudformationAPI(session, region)
+	ec2Api := NewEC2API(session, region)
+
+	cnfUtil := &CloudformationUtil{
 		cfnApi: cfnApi,
 		ec2Api: ec2Api,
 	}
-	return cfnUtil
+	return cnfUtil, err
+
+
 }
 
 // Stop all EC2 Instances in a cloudformation stack
@@ -79,18 +89,6 @@ func (cfnu CloudformationUtil) StopEc2InstanceStackResource(stackResource cloudf
 
 }
 
-
-// Creates a cloudformation API
-func NewCloudformationAPI(session *session.Session, region string) *cloudformation.CloudFormation {
-
-	cloudformationService := cloudformation.New(session,
-		&aws.Config{
-			Region: aws.String(region),
-		},
-	)
-	return cloudformationService
-
-}
 
 // Is the StackResource parameter an EC2 instance?
 func IsStackResourceEc2Instance(stackResource cloudformation.StackResource) bool {
