@@ -61,7 +61,7 @@ func TestStopEC2Instances(t *testing.T) {
 
 }
 
-func TestStopEc2InstanceStackResource(t *testing.T) {
+func TestStartEc2InstanceStackResource(t *testing.T) {
 
 	mockInstanceId := "i-mock"
 
@@ -69,15 +69,15 @@ func TestStopEc2InstanceStackResource(t *testing.T) {
 	mockEc2 := mockec2.NewEC2APIMock()
 
 	// The mock ec2 API is expecting to get this as the parameter to
-	// the ec2Api.StopInstances invocation
-	expectedStopInstancesInput := &ec2.StopInstancesInput{
+	// the ec2Api.StartInstances invocation
+	expectedStartInstancesInput := &ec2.StartInstancesInput{
 		InstanceIds: []*string{
 			&mockInstanceId,
 		},
 	}
 
-	mockEc2.On("StopInstances", expectedStopInstancesInput).Return(
-		&ec2.StopInstancesOutput{},
+	mockEc2.On("StartInstances", expectedStartInstancesInput).Return(
+		&ec2.StartInstancesOutput{},
 		nil,
 	).Once()
 
@@ -89,8 +89,8 @@ func TestStopEc2InstanceStackResource(t *testing.T) {
 		PhysicalResourceId: &mockInstanceId,
 	}
 
-	err = cfnUtil.StopEc2InstanceStackResource(stackResource)
-	assert.NoError(t, err, "Error calling StopEc2InstanceStackResource")
+	err = cfnUtil.StartEc2InstanceForStackResource(stackResource)
+	assert.NoError(t, err, "Error calling StartEc2InstanceStackResource")
 
 	mockEc2.AssertExpectations(t)
 
