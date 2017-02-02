@@ -1,14 +1,14 @@
 package awsutil_test
 
 import (
-	"testing"
-	"github.com/tleyden/awsutil"
-	"github.com/tleyden/aws-sdk-mock/mockcloudformation"
-	"github.com/tleyden/aws-sdk-mock/mockec2"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/ec2"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"github.com/tleyden/aws-sdk-mock/mockcloudformation"
+	"github.com/tleyden/aws-sdk-mock/mockec2"
+	"github.com/tleyden/awsutil"
+	"testing"
 )
 
 func TestStopEC2Instances(t *testing.T) {
@@ -23,13 +23,12 @@ func TestStopEC2Instances(t *testing.T) {
 		&cloudformation.DescribeStackResourcesOutput{
 			StackResources: []*cloudformation.StackResource{
 				&cloudformation.StackResource{
-					ResourceType: awsutil.StringPointer(awsutil.AWS_EC2_INSTANCE),
+					ResourceType:       awsutil.StringPointer(awsutil.AWS_EC2_INSTANCE),
 					PhysicalResourceId: &mockInstanceId,
 				},
 				&cloudformation.StackResource{
 					ResourceType: awsutil.StringPointer(awsutil.AWS_EC2_HOST),
 				},
-
 			},
 		},
 		nil,
@@ -60,10 +59,9 @@ func TestStopEC2Instances(t *testing.T) {
 	mockCfn.AssertExpectations(t)
 	mockEc2.AssertExpectations(t)
 
-
 }
 
-func TestStopEc2InstanceStackResource(t *testing.T)  {
+func TestStopEc2InstanceStackResource(t *testing.T) {
 
 	mockInstanceId := "i-mock"
 
@@ -87,7 +85,7 @@ func TestStopEc2InstanceStackResource(t *testing.T)  {
 	assert.NoError(t, err, "Error calling NewCloudformationUtil")
 
 	stackResource := cloudformation.StackResource{
-		ResourceType: awsutil.StringPointer(awsutil.AWS_EC2_INSTANCE),
+		ResourceType:       awsutil.StringPointer(awsutil.AWS_EC2_INSTANCE),
 		PhysicalResourceId: &mockInstanceId,
 	}
 
@@ -95,7 +93,6 @@ func TestStopEc2InstanceStackResource(t *testing.T)  {
 	assert.NoError(t, err, "Error calling StopEc2InstanceStackResource")
 
 	mockEc2.AssertExpectations(t)
-
 
 }
 
@@ -105,4 +102,3 @@ func NewMockCloudformationAPI() *mockcloudformation.CloudFormationAPIMock {
 	return mockcloudformation.NewCloudFormationAPIMock()
 
 }
-
