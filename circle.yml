@@ -12,4 +12,7 @@ test:
   override:
     - go test -v -race ./...
   post:
+    - which goveralls
+    - which awsutil
+    - echo $FOO
     - goveralls -service circle-ci -repotoken $COVERALLS_TOKEN
