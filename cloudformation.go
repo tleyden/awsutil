@@ -25,8 +25,8 @@ func NewCloudformationUtilFromRegion(region string) (*CloudformationUtil, error)
 		return nil, err
 	}
 
-	cfnApi := NewCloudformationAPI(session, region)
-	ec2Api := NewEC2API(session, region)
+	cfnApi := newCloudformationAPI(session, region)
+	ec2Api := newEC2API(session, region)
 
 	return NewCloudformationUtil(cfnApi, ec2Api)
 

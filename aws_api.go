@@ -7,7 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
-func NewCloudformationAPI(session *session.Session, region string) *cloudformation.CloudFormation {
+func newCloudformationAPI(session *session.Session, region string) *cloudformation.CloudFormation {
 
 	cloudformationService := cloudformation.New(session,
 		&aws.Config{
@@ -18,7 +18,7 @@ func NewCloudformationAPI(session *session.Session, region string) *cloudformati
 
 }
 
-func NewEC2API(session *session.Session, region string) *ec2.EC2 {
+func newEC2API(session *session.Session, region string) *ec2.EC2 {
 
 	ec2 := ec2.New(session,
 		&aws.Config{
