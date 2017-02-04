@@ -4,8 +4,12 @@ dependencies:
     # in case they change upstream
     - rm -rf /home/ubuntu/.go_workspace
   override:
+    - go get github.com/axw/gocov/gocov
+    - go get github.com/mattn/goveralls
     - go get -t -d -v ./...
     - go build -v
 test:
   override:
     - go test -v -race ./...
+  post:
+    - goveralls -service circle-ci -repotoken $COVERALLS_TOKEN
