@@ -7,5 +7,4 @@ const (
 
 	// AWS_EC2_HOST is an Ec2 host resource type
 	AWS_EC2_HOST = "AWS::EC2::Host"
-
 )
