@@ -22,11 +22,11 @@ func TestStopEC2Instances(t *testing.T) {
 	mockCfn.On("DescribeStackResources", mock.Anything).Return(
 		&cloudformation.DescribeStackResourcesOutput{
 			StackResources: []*cloudformation.StackResource{
-				&cloudformation.StackResource{
+				{
 					ResourceType:       awsutil.StringPointer(awsutil.AWS_EC2_INSTANCE),
 					PhysicalResourceId: &mockInstanceId,
 				},
-				&cloudformation.StackResource{
+				{
 					ResourceType: awsutil.StringPointer(awsutil.AWS_EC2_HOST),
 				},
 			},

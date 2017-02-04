@@ -22,7 +22,6 @@ func main() {
 		"cloudformation start-instances": func() (cli.Command, error) {
 			return &cloudformationStartInstancesCommand{}, nil
 		},
-
 	}
 
 	exitStatus, err := c.Run()
@@ -141,8 +140,6 @@ func (c *cloudformationStartInstancesCommand) Run(args []string) int {
 	return 0
 
 }
-
-
 
 func (c *cloudformationStartInstancesCommand) Synopsis() string {
 	return "Start all instances in given cloudformation stack"

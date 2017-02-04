@@ -1,10 +1,10 @@
 package awsutil
 
 import (
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/ec2"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/aws"
 )
 
 func NewCloudformationAPI(session *session.Session, region string) *cloudformation.CloudFormation {
@@ -28,4 +28,3 @@ func NewEC2API(session *session.Session, region string) *ec2.EC2 {
 	return ec2
 
 }
-
