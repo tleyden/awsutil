@@ -1,6 +1,3 @@
-checkout:
-  override:
-    - go get -u -v -t github.com/tleyden/awsutil/...
 dependencies:
   pre:
     # clear out the workspace to remove any cached go dependencies,
@@ -9,12 +6,12 @@ dependencies:
   override:
     - go get github.com/axw/gocov/gocov
     - go get github.com/mattn/goveralls
+    - go get -v -t -d ./...
     - go build -v
+  post:
+    - go vet
 test:
   override:
     - go test -v -race ./...
   post:
-    - which goveralls
-    - which awsutil
-    - echo $FOO
-    - goveralls -service circle-ci -repotoken $COVERALLS_TOKEN
+    - goveralls --package github.com/tleyden/awsutil -service circle-ci -repotoken $COVERALLS_TOKEN
