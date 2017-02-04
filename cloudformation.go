@@ -139,7 +139,7 @@ func (cfnu CloudformationUtil) StartEc2InstanceForStackResource(stackResource cl
 
 }
 
-// Is the StackResource parameter an EC2 instance?
+// IsStackResourceEc2Instance checks whether the StackResource parameter an EC2 instance
 func IsStackResourceEc2Instance(stackResource cloudformation.StackResource) bool {
 	return *stackResource.ResourceType == AWS_EC2_INSTANCE
 }

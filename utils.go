@@ -1,6 +1,6 @@
 package awsutil
 
-// Converts a string -> *string
+// StringPointer converts a string -> *string
 func StringPointer(s string) *string {
 	return &s
 }
