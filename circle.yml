@@ -1,3 +1,6 @@
+checkout:
+  override:
+    - go get -u -v -t github.com/tleyden/awsutil/...
 dependencies:
   pre:
     # clear out the workspace to remove any cached go dependencies,
@@ -6,7 +9,6 @@ dependencies:
   override:
     - go get github.com/axw/gocov/gocov
     - go get github.com/mattn/goveralls
-    - go get -t -d -v ./...
     - go build -v
 test:
   override:
