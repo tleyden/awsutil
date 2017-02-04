@@ -1,4 +1,3 @@
-[![Build Status](http://drone.couchbase.io/api/badges/tleyden/awsutil/status.svg)](http://drone.couchbase.io/tleyden/awsutil)
 
 A collection of utilities (ok, one utility!) to automate tasks on AWS that aren't covered by the AWS CLI or SDK.
 
