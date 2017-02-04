@@ -12,12 +12,13 @@ import (
 	// "github.com/y0ssar1an/q"
 )
 
-// Wraps AWS Cloudformation SDK API and provides additional utilities
+// CloudformationUtil wraps the AWS Cloudformation SDK API and provides additional utilities
 type CloudformationUtil struct {
 	cfnApi cloudformationiface.CloudFormationAPI
 	ec2Api ec2iface.EC2API
 }
 
+// NewCloudformationUtilFromRegion creates a CloudformationUtil from a region
 func NewCloudformationUtilFromRegion(region string) (*CloudformationUtil, error) {
 
 	session, err := session.NewSession()
@@ -32,6 +33,7 @@ func NewCloudformationUtilFromRegion(region string) (*CloudformationUtil, error)
 
 }
 
+// NewCloudformationUtil creates a CloudformationUtil given the underlying AWS api implementations (or mocks)
 func NewCloudformationUtil(cfnApi cloudformationiface.CloudFormationAPI, ec2Api ec2iface.EC2API) (*CloudformationUtil, error) {
 
 	cnfUtil := &CloudformationUtil{
@@ -43,7 +45,7 @@ func NewCloudformationUtil(cfnApi cloudformationiface.CloudFormationAPI, ec2Api 
 
 }
 
-// Stop all EC2 Instances in a cloudformation stack
+// StopEC2Instances stops all EC2 Instances in a cloudformation stack
 func (cfnu CloudformationUtil) StopEC2Instances(stackname string) error {
 
 	f := func(s *cloudformation.StackResource, c CloudformationUtil) error {
@@ -55,7 +57,7 @@ func (cfnu CloudformationUtil) StopEC2Instances(stackname string) error {
 
 }
 
-// Start/restart all EC2 Instances in a cloudformation stack
+// StartEC2Instances starts/restarts all EC2 Instances in a cloudformation stack
 func (cfnu CloudformationUtil) StartEC2Instances(stackname string) error {
 	f := func(s *cloudformation.StackResource, c CloudformationUtil) error {
 		err := cfnu.StartEc2InstanceForStackResource(*s)
@@ -94,7 +96,7 @@ func (cfnu CloudformationUtil) startOrStop(stackname string, f func(*cloudformat
 	return nil
 }
 
-// Stop the EC2 Instance Stack Resource
+// StopEc2InstanceForStackResource stops the EC2 Instance for the given Stack Resource
 func (cfnu CloudformationUtil) StopEc2InstanceForStackResource(stackResource cloudformation.StackResource) error {
 
 	if !IsStackResourceEc2Instance(stackResource) {
@@ -116,7 +118,7 @@ func (cfnu CloudformationUtil) StopEc2InstanceForStackResource(stackResource clo
 
 }
 
-// Stop the EC2 Instance Stack Resource
+// StartEc2InstanceForStackResource starts the EC2 Instance in given Stack Resource
 func (cfnu CloudformationUtil) StartEc2InstanceForStackResource(stackResource cloudformation.StackResource) error {
 	if !IsStackResourceEc2Instance(stackResource) {
 		return fmt.Errorf("Stack Resource [%+v] is not an EC2 instance.", stackResource)
