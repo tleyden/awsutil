@@ -98,13 +98,35 @@ func TestStartEc2InstanceStackResource(t *testing.T) {
 
 }
 
-func TestInCloudformation(t *testing.T) {
+func TestInCloudformationHappyPath(t *testing.T) {
+
+	// The mock instance id which is part of a cloudformation stack
+	mockInstanceId := "i-mockinstnaceid"
+	mockStackId := "i-mockstackid"
 
 	cfnUtil, mockCfn, mockEc2 := NewMockCloudformationUtil()
 	log.Printf("Created %v %v %v", cfnUtil, mockCfn, mockEc2)
-	in, _, err := cfnUtil.InCloudformation("i-foo")
-	assert.False(t, in)
+
+	// mock cloudformation response which contains the physical resource ID
+	// corresponding to the the
+	mockCfn.On("DescribeStackResources", mock.Anything).Return(
+		&cloudformation.DescribeStackResourcesOutput{
+			StackResources: []*cloudformation.StackResource{
+				{
+					ResourceType:       awsutil.StringPointer(awsutil.AWS_EC2_INSTANCE),
+					PhysicalResourceId: &mockInstanceId,
+					StackId: &mockStackId,
+				},
+			},
+		},
+		nil,
+	).Once()
+
+
+	in, stackResource, err := cfnUtil.InCloudformation(mockInstanceId)
+	assert.True(t, in)
 	assert.NoError(t, err, "Got unexpected error")
+	assert.Equal(t, *stackResource.StackId, mockStackId)
 
 
 }
