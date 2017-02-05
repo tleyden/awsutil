@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
 	// "github.com/y0ssar1an/q"
+	"log"
 )
 
 // CloudformationUtil wraps the AWS Cloudformation SDK API and provides additional utilities
@@ -114,7 +115,26 @@ func (cfnu CloudformationUtil) StartEc2InstanceForStackResource(stackResource cl
 // Cloudformation.  If it is, it returns a boolean val set to true, and a
 // a *cloudformation.StackResource.  Otherwise it returns false/nil
 func (cfnu CloudformationUtil) InCloudformation(instanceId string) (bool, *cloudformation.StackResource, error) {
-	return false, nil , nil
+
+	params := &cloudformation.DescribeStackResourcesInput{
+		PhysicalResourceId: StringPointer(instanceId),
+	}
+	dsrOutput, err := cfnu.cfnApi.DescribeStackResources(params)
+	if err != nil {
+		return false, nil, err
+	}
+	if len(dsrOutput.StackResources) == 0 {
+		return false, nil, nil
+	}
+	if len(dsrOutput.StackResources) > 1 {
+		log.Printf(
+			"Warning: got %d stackresources for instanceid: %v. Expected 0 or 1",
+			len(dsrOutput.StackResources),
+			instanceId,
+		)
+	}
+
+	return true, dsrOutput.StackResources[0], nil
 }
 
 

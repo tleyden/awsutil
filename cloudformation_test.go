@@ -108,7 +108,7 @@ func TestInCloudformationHappyPath(t *testing.T) {
 	log.Printf("Created %v %v %v", cfnUtil, mockCfn, mockEc2)
 
 	// mock cloudformation response which contains the physical resource ID
-	// corresponding to the the
+	// corresponding to the mock instance
 	mockCfn.On("DescribeStackResources", mock.Anything).Return(
 		&cloudformation.DescribeStackResourcesOutput{
 			StackResources: []*cloudformation.StackResource{
