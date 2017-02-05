@@ -67,35 +67,6 @@ func (cfnu CloudformationUtil) StartEC2Instances(stackname string) error {
 	return err
 }
 
-func (cfnu CloudformationUtil) startOrStop(stackname string, f func(*cloudformation.StackResource, CloudformationUtil) error) error {
-
-	params := &cloudformation.DescribeStackResourcesInput{
-		StackName: aws.String(stackname),
-	}
-
-	describeStackResourcesOut, err := cfnu.cfnApi.DescribeStackResources(params)
-	if err != nil {
-		return err
-	}
-
-	for _, stackResource := range describeStackResourcesOut.StackResources {
-
-		// if it's not an EC2 instance, ignore it
-		if !IsStackResourceEc2Instance(*stackResource) {
-			continue
-		}
-
-		// otherwise stop it
-		err := f(stackResource, cfnu)
-		if err != nil {
-			return err
-		}
-
-	}
-
-	return nil
-}
-
 // StopEc2InstanceForStackResource stops the EC2 Instance for the given Stack Resource
 func (cfnu CloudformationUtil) StopEc2InstanceForStackResource(stackResource cloudformation.StackResource) error {
 
@@ -139,7 +110,44 @@ func (cfnu CloudformationUtil) StartEc2InstanceForStackResource(stackResource cl
 
 }
 
+// InCloudformation checks whether the given instance id is part of a
+// Cloudformation.  If it is, it returns a boolean val set to true, and a
+// a *cloudformation.StackResource.  Otherwise it returns false/nil
+func (cfnu CloudformationUtil) InCloudformation(instanceId string) (bool, *cloudformation.StackResource, error) {
+	return false, nil , nil
+}
+
+
 // IsStackResourceEc2Instance checks whether the StackResource parameter an EC2 instance
 func IsStackResourceEc2Instance(stackResource cloudformation.StackResource) bool {
 	return *stackResource.ResourceType == AWS_EC2_INSTANCE
+}
+
+func (cfnu CloudformationUtil) startOrStop(stackname string, f func(*cloudformation.StackResource, CloudformationUtil) error) error {
+
+	params := &cloudformation.DescribeStackResourcesInput{
+		StackName: aws.String(stackname),
+	}
+
+	describeStackResourcesOut, err := cfnu.cfnApi.DescribeStackResources(params)
+	if err != nil {
+		return err
+	}
+
+	for _, stackResource := range describeStackResourcesOut.StackResources {
+
+		// if it's not an EC2 instance, ignore it
+		if !IsStackResourceEc2Instance(*stackResource) {
+			continue
+		}
+
+		// otherwise stop it
+		err := f(stackResource, cfnu)
+		if err != nil {
+			return err
+		}
+
+	}
+
+	return nil
 }
