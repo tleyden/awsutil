@@ -134,7 +134,18 @@ func (cfnu CloudformationUtil) InCloudformation(instanceId string) (bool, *cloud
 		)
 	}
 
-	return true, dsrOutput.StackResources[0], nil
+	stackResource := dsrOutput.StackResources[0]
+
+	// Defensive check -- should never happen, because AWS should always return us a
+	// stack resource that matches our filter.
+	if *stackResource.PhysicalResourceId != instanceId {
+		return false, stackResource, fmt.Errorf("Stack resource physicalresource id [%v] != expected [%v]",
+			*stackResource.PhysicalResourceId,
+			instanceId,
+		)
+	}
+
+	return true, stackResource, nil
 }
 
 
