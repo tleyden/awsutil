@@ -190,6 +190,8 @@ func TestInCloudformationNoMatchingResources(t *testing.T) {
 }
 
 
+
+
 func NewMockCloudformationUtil() (*awsutil.CloudformationUtil, *mockcloudformation.CloudFormationAPIMock, *mockec2.EC2APIMock) {
 
 	mockCfn := mockcloudformation.NewCloudFormationAPIMock()
