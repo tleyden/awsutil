@@ -175,10 +175,8 @@ func TestInCloudformationNoMatchingResources(t *testing.T) {
 	// mock cloudformation response which is a broken cloudformation and returns
 	// a stack resource which does not have our expected instance id.
 	mockCfn.On("DescribeStackResources", mock.Anything).Return(
-		&cloudformation.DescribeStackResourcesOutput{
-			StackResources: []*cloudformation.StackResource{},
-		},
 		nil,
+		fmt.Errorf("Stack for %v does not exist", mockInstanceId),
 	).Once()
 
 

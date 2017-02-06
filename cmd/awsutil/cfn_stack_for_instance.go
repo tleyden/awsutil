@@ -42,7 +42,7 @@ func (c *cfnStackForInstanceCmd) Run(args []string) int {
 	// Start/restart all instances in stack
 	in, stackResource, err := cfnUtil.InCloudformation(*instanceId)
 	if err != nil {
-		log.Fatalf("Error seeing if instance id in cfn stack: %v.  Err: %v", *instanceId, err)
+		log.Fatalf("Error seeing if instance id in cfn stack: %v.  Err: %v.  Err type: %T", *instanceId, err, err)
 		return 1
 	}
 
