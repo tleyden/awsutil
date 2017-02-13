@@ -6,7 +6,8 @@ import (
 	"time"
 )
 
-func TestFetchRunningEc2InstanceMetrics(t *testing.T) {
+// TODO: convert this to a functional test based on mocks
+func IntegrationTestFetchRunningEc2InstanceMetrics(t *testing.T) {
 
 	cwUtil, err := NewCloudwatchMetricsUtilFromRegion("us-east-1")
 	if err != nil {
