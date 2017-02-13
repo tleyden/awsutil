@@ -1,6 +1,7 @@
 package awsutil
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -46,7 +47,7 @@ func (cwmu CloudwatchMetricsUtil) GetEc2InstancesWithStates(states []string) ([]
 
 	matchingInstances := []*ec2.Instance{}
 
-	statesPointers := []*string {}
+	statesPointers := []*string{}
 	for _, state := range states {
 		statesPointers = append(statesPointers, aws.String(state))
 	}
@@ -54,7 +55,7 @@ func (cwmu CloudwatchMetricsUtil) GetEc2InstancesWithStates(states []string) ([]
 	diInput := &ec2.DescribeInstancesInput{
 		Filters: []*ec2.Filter{
 			&ec2.Filter{
-				Name: aws.String("instance-state-name"),
+				Name:   aws.String("instance-state-name"),
 				Values: statesPointers,
 			},
 		},
@@ -78,7 +79,6 @@ func (cwmu CloudwatchMetricsUtil) GetEc2InstancesWithStates(states []string) ([]
 	return matchingInstances, nil
 }
 
-
 // FetchRunningEc2InstanceMetrics fetches certain metrics for running EC2 instances
 //
 // Steps
@@ -93,7 +93,7 @@ func (cwmu CloudwatchMetricsUtil) FetchRunningEc2InstanceMetrics(input FetchRunn
 
 	ec2Instances, err := cwmu.GetEc2InstancesWithStates([]string{EC2_INSTANCE_STATE_RUNNING})
 	if err != nil {
-		return metricsOutputs, err
+		return metricsOutputs, fmt.Errorf("Error getting running ec2 instances: %v", err)
 	}
 
 	for _, ec2Instance := range ec2Instances {
@@ -105,11 +105,11 @@ func (cwmu CloudwatchMetricsUtil) FetchRunningEc2InstanceMetrics(input FetchRunn
 			MetricName: aws.String(input.MetricName),
 			Dimensions: []*cloudwatch.Dimension{
 				&cloudwatch.Dimension{
-					Name: aws.String("InstanceId"),
+					Name:  aws.String("InstanceId"),
 					Value: ec2Instance.InstanceId,
 				},
 			},
-			Period:     aws.Int64(3600),
+			Period: aws.Int64(3600),
 
 			StartTime:  &oneHourAgo,
 			EndTime:    &now,
@@ -118,22 +118,20 @@ func (cwmu CloudwatchMetricsUtil) FetchRunningEc2InstanceMetrics(input FetchRunn
 
 		metricStats, err := cwmu.cwApi.GetMetricStatistics(metricStatsParams)
 		if err != nil {
-			return metricsOutputs, err
+			return metricsOutputs, fmt.Errorf("Error getting metric stats for instance [%v]: %v", *ec2Instance.InstanceId, err)
 		}
 
 		metricOutput := FetchRunningEc2InstanceMetricsOuput{
-			Namespace: input.Namespace,
+			Namespace:     input.Namespace,
 			Ec2InstanceId: *ec2Instance.InstanceId,
-			MetricName: input.MetricName,
-			Metrics: metricStats,
+			MetricName:    input.MetricName,
+			Metrics:       metricStats,
 		}
 
 		metricsOutputs = append(metricsOutputs, metricOutput)
 
-
 	}
 
 	return metricsOutputs, nil
-
 
 }
