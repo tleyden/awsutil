@@ -135,54 +135,5 @@ func (cwmu CloudwatchMetricsUtil) FetchRunningEc2InstanceMetrics(input FetchRunn
 
 	return metricsOutputs, nil
 
-	/*
-	params := &cloudwatch.ListMetricsInput{
-		// TODO:
-		// --dimensions Name=InstanceId,Value=i-0e179af01e913f238
-		Dimensions: []*cloudwatch.DimensionFilter{
-			{ // Required
-				Name:  aws.String("InstanceId"), // Required
-				Value: aws.String("DimensionValue"),
-			},
-			// More values...
-		},
-		// MetricName: aws.String("MetricName"),
-		Namespace:  aws.String(input.Namespace),
-		MetricName: aws.String(input.MetricName),
-	}
-	metrics, err := cwmu.cwApi.ListMetrics(params)
-	log.Printf("listMetricsResponse: %v.  num metrics: %d", metrics, len(metrics.Metrics))
-	if err != nil {
-		log.Printf("Failed to list metrics")
-		return nil, err
-	}
-
-	// TODO: deal with NextToken
-
-	for _, metric := range metrics.Metrics {
-		metric.Dimensions
-	}
-
-	now := time.Now()
-	oneHourAgo := now.Add(time.Hour * -1)
-	metricStatsParams := &cloudwatch.GetMetricStatisticsInput{
-		Namespace:  awsutil.StringPointer("AWS/EC2"),
-		MetricName: awsutil.StringPointer("CPUUtilization"),
-		Period:     awsutil.Int64Pointer(3600),
-		StartTime:  &oneHourAgo,
-		EndTime:    &now,
-		Statistics: []*string{awsutil.StringPointer("Average")},
-	}
-
-	metricStats, err := cloudWatchService.GetMetricStatistics(metricStatsParams)
-	if err != nil {
-		log.Printf("Failed to list metric stats")
-		return err
-	}
-	log.Printf("metricStats respnse: %v.", metricStats)
-
-	return nil
-*/
-
 
 }
