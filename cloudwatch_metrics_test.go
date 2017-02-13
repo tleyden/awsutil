@@ -10,7 +10,7 @@ func TestFetchRunningEc2InstanceMetrics(t *testing.T) {
 
 	cwUtil, err := NewCloudwatchMetricsUtilFromRegion("us-east-1")
 	if err != nil {
-		t.Fatal("Failed to create cwUtil: %v", err)
+		t.Fatalf("Failed to create cwUtil: %v", err)
 	}
 
 	input :=  FetchRunningEc2InstanceMetricsInput {
@@ -22,7 +22,7 @@ func TestFetchRunningEc2InstanceMetrics(t *testing.T) {
 
 	metrics, err := cwUtil.FetchRunningEc2InstanceMetrics(input)
 	if err != nil {
-		t.Fatal("Failed to get metrics: %v", err)
+		t.Fatalf("Failed to get metrics: %v", err)
 	}
 	log.Printf("got metrics: %+v", metrics)
 
