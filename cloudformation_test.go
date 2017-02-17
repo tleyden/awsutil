@@ -13,6 +13,7 @@ import (
 	"github.com/tleyden/aws-sdk-mock/mockcloudformation"
 	"github.com/tleyden/aws-sdk-mock/mockec2"
 	"github.com/tleyden/awsutil"
+	"github.com/aws/aws-sdk-go/aws"
 )
 
 func TestStopEC2Instances(t *testing.T) {
@@ -118,40 +119,14 @@ func TestInCloudformationHappyPath(t *testing.T) {
 					LogicalResourceId:  &mockLogicalResourceId,
 					StackName:          &mockStackName,
 				},
-			},
-		},
-		nil,
-	).Once()
-
-	in, stackResource, err := cfnUtil.InCloudformation(mockInstanceId)
-	assert.True(t, in)
-	assert.NoError(t, err, "Got unexpected error")
-	assert.Equal(t, *stackResource.StackId, mockStackId)
-
-}
-
-func TestInCloudformationUnexpectedInstanceID(t *testing.T) {
-
-	// The mock instance id which is part of a cloudformation stack
-	mockInstanceId := "i-mockInstanceId"
-	mockStackName := "mockstackname"
-	mockLogicalResourceId := "mockLogicalResourceId"
-	mockStackId := "i-mockstackid"
-	unexpectedInstanceId := "i-unexpectedInstanceId"
-
-	cfnUtil, mockCfn, mockEc2 := NewMockCloudformationUtil()
-	log.Printf("Created %v %v %v", cfnUtil, mockCfn, mockEc2)
-
-	// mock cloudformation response which is a broken cloudformation and returns
-	// a stack resource which does not have our expected instance id.
-	mockCfn.On("DescribeStackResources", mock.Anything).Return(
-		&cloudformation.DescribeStackResourcesOutput{
-			StackResources: []*cloudformation.StackResource{
 				{
-					ResourceType:       awsutil.StringPointer(awsutil.AWS_EC2_INSTANCE),
-					PhysicalResourceId: &unexpectedInstanceId,
+					// since a DescribeStackResources returns _all_ resources in a stack,
+					// not just the matching resource, throw in some fake resources
+					// along with the instance resource
+					ResourceType:       aws.String("AWS::EBS"),
+					PhysicalResourceId: aws.String("PhysicalResourceId"),
 					StackId:            &mockStackId,
-					LogicalResourceId:  &mockLogicalResourceId,
+					LogicalResourceId:  aws.String("LogicalResourceId"),
 					StackName:          &mockStackName,
 				},
 			},
@@ -159,12 +134,11 @@ func TestInCloudformationUnexpectedInstanceID(t *testing.T) {
 		nil,
 	).Once()
 
-	in, _, err := cfnUtil.InCloudformation(mockInstanceId)
-	assert.False(t, in)
-
-	// Expect an error in this case, because our mock cloudformation did the wrong thing,
-	// and our code detected it
-	assert.Error(t, err, "Expected an error")
+	in, stackId, stackName, err := cfnUtil.InCloudformation(mockInstanceId)
+	assert.True(t, in)
+	assert.NoError(t, err, "Got unexpected error")
+	assert.Equal(t, stackId, mockStackId)
+	assert.Equal(t, stackName, mockStackName)
 
 }
 
@@ -177,7 +151,7 @@ func TestInCloudformationNotInStackCFNResponse(t *testing.T) {
 	log.Printf("Created %v %v %v", cfnUtil, mockCfn, mockEc2)
 
 	// mock cloudformation response which is a broken cloudformation and returns
-	// a stack resource which does not have our expected instance id.
+	// a stack resource which does not have a stackname or stackid
 	mockCfn.On("DescribeStackResources", mock.Anything).Return(
 		&cloudformation.DescribeStackResourcesOutput{
 			StackResources: []*cloudformation.StackResource{
@@ -190,10 +164,10 @@ func TestInCloudformationNotInStackCFNResponse(t *testing.T) {
 		nil,
 	).Once()
 
-	in, _, err := cfnUtil.InCloudformation(mockInstanceId)
+	in, _, _, err := cfnUtil.InCloudformation(mockInstanceId)
 	assert.False(t, in)
 
-	assert.NoError(t, err, "Got unexpected error")
+	assert.Error(t, err, "Didn't get expected error")
 
 }
 
@@ -213,7 +187,7 @@ func TestInCloudformationNoMatchingResources(t *testing.T) {
 		fmt.Errorf("Stack for %v does not exist", mockInstanceId),
 	).Once()
 
-	in, _, err := cfnUtil.InCloudformation(mockInstanceId)
+	in, _, _, err := cfnUtil.InCloudformation(mockInstanceId)
 	assert.False(t, in)
 
 	assert.NoError(t, err, "Unexpected error")

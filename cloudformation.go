@@ -10,7 +10,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
 	// "github.com/y0ssar1an/q"
-	"log"
 	"strings"
 )
 
@@ -113,9 +112,9 @@ func (cfnu CloudformationUtil) StartEc2InstanceForStackResource(stackResource cl
 }
 
 // InCloudformation checks whether the given instance id is part of a
-// Cloudformation.  If it is, it returns a boolean val set to true, and a
-// a *cloudformation.StackResource.  Otherwise it returns false/nil
-func (cfnu CloudformationUtil) InCloudformation(instanceId string) (bool, *cloudformation.StackResource, error) {
+// Cloudformation.  If it is, it returns a nil error and the stack Id and stack name.
+// Otherwise it returns a n
+func (cfnu CloudformationUtil) InCloudformation(instanceId string) (in bool, stackId string, stackName string, err error) {
 
 	params := &cloudformation.DescribeStackResourcesInput{
 		PhysicalResourceId: StringPointer(instanceId),
@@ -126,49 +125,30 @@ func (cfnu CloudformationUtil) InCloudformation(instanceId string) (bool, *cloud
 		// if we get a "does not exist" then just absorb the error and don't treat it as an error condition
 		// since it's expected if the instance ID is not present in any cloudformation stacks
 		if strings.Contains(err.Error(), "does not exist") {
-			return false, nil, nil
+			return false, "", "", nil
 		}
 
 		// it's an unexpected error, let's return it to the caller to bring to attention
-		return false, nil, err
+		return false, "", "", err
 
 	}
 	if len(dsrOutput.StackResources) == 0 {
-		return false, nil, nil
+		return false, "", "", nil
 	}
-	if len(dsrOutput.StackResources) > 1 {
-		log.Printf(
-			"Warning: got %d stackresources for instanceid: %v. Expected 0 or 1",
-			len(dsrOutput.StackResources),
-			instanceId,
-		)
-	}
+
 
 	stackResource := dsrOutput.StackResources[0]
 
-	if stackResource.LogicalResourceId == nil {
-		return false, nil, nil
-	}
-
 	if stackResource.StackId == nil {
-		return false, nil, nil
+		return false, "", "", fmt.Errorf("StackResource is missing StackId: %+v", *stackResource)
 	}
 
 	if stackResource.StackName == nil {
-		return false, nil, nil
+		return false, "", "", fmt.Errorf("StackResource is missing StackName: %+v", *stackResource)
 	}
 
 
-	// Defensive check -- should never happen, because AWS should always return us a
-	// stack resource that matches our filter.
-	if *stackResource.PhysicalResourceId != instanceId {
-		return false, stackResource, fmt.Errorf("Stack resource physicalresource id [%v] != expected [%v]",
-			*stackResource.PhysicalResourceId,
-			instanceId,
-		)
-	}
-
-	return true, stackResource, nil
+	return true, *stackResource.StackId, *stackResource.StackName, nil
 }
 
 
