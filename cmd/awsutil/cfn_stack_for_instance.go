@@ -40,14 +40,14 @@ func (c *cfnStackForInstanceCmd) Run(args []string) int {
 	}
 
 	// Start/restart all instances in stack
-	in, stackResource, err := cfnUtil.InCloudformation(*instanceId)
+	in, stackId, stackName, err := cfnUtil.InCloudformation(*instanceId)
 	if err != nil {
 		log.Fatalf("Error seeing if instance id in cfn stack: %v.  Err: %v.  Err type: %T", *instanceId, err, err)
 		return 1
 	}
 
 	if in {
-		log.Printf("Instance %s in cloudformation stack: %+v", *instanceId, *stackResource)
+		log.Printf("Instance %s in cloudformation stack: %v (%v)", *instanceId, stackName, stackId)
 	} else {
 		log.Printf("Instance %s not in any cloudformation stacks.", *instanceId)
 	}
